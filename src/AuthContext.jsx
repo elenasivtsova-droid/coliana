@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from './firebase';
 import {
   RecaptchaVerifier,
-  signInWithPhoneNumber
+  PhoneAuthProvider,
+  linkWithCredential
 } from 'firebase/auth';
 import { SCRIPT_URL } from './config';
 
@@ -31,7 +32,6 @@ export const AuthProvider = ({ children }) => {
   });
   const [userGroups, setUserGroups] = useState([]);
   const [phoneVerificationId, setPhoneVerificationId] = useState(null);
-  const [confirmationResultObj, setConfirmationResultObj] = useState(null);
   const [phoneVerified, setPhoneVerified] = useState(() => {
     const stored = localStorage.getItem('coliana_phone_verified');
     return stored === 'true';
@@ -168,15 +168,20 @@ export const AuthProvider = ({ children }) => {
       picture: firebaseUser.photoURL,
       given_name: firebaseUser.displayName?.split(' ')[0] || '',
       family_name: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-      uid: firebaseUser.uid
+      uid: firebaseUser.uid,
+      phone: firebaseUser.phoneNumber || ''
     };
 
     setUser(userObject);
     localStorage.setItem('coliana_user', JSON.stringify(userObject));
 
-    // Reset phone verification on new sign-in
-    setPhoneVerified(false);
-    localStorage.removeItem('coliana_phone_verified');
+    if (firebaseUser.phoneNumber) {
+      setPhoneVerified(true);
+      localStorage.setItem('coliana_phone_verified', 'true');
+    } else {
+      setPhoneVerified(false);
+      localStorage.removeItem('coliana_phone_verified');
+    }
 
     // Fetch user groups and profile
     fetchUserGroups();
@@ -195,7 +200,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setUserGroups([]);
     setPhoneVerificationId(null);
-    setConfirmationResultObj(null);
     setPhoneVerified(false);
 
     // Clear localStorage
@@ -240,11 +244,10 @@ export const AuthProvider = ({ children }) => {
       // Render reCAPTCHA if needed
       await appVerifier.render();
 
-      // Send verification code
-      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      const provider = new PhoneAuthProvider(auth);
+      const verificationId = await provider.verifyPhoneNumber(formattedPhone, appVerifier);
 
-      setPhoneVerificationId(confirmationResult.verificationId);
-      setConfirmationResultObj(confirmationResult);
+      setPhoneVerificationId(verificationId);
       clearRecaptchaVerifier();
       setVerificationCooldownUntil(null);
 
@@ -271,15 +274,22 @@ export const AuthProvider = ({ children }) => {
 
   const verifyPhoneCode = async (code) => {
     try {
-      if (!confirmationResultObj) {
+      if (!phoneVerificationId) {
         return { success: false, error: 'No verification session available' };
       }
 
-      const userCredential = await confirmationResultObj.confirm(code);
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return { success: false, error: 'Please sign in before verifying your phone number' };
+      }
+
+      const credential = PhoneAuthProvider.credential(phoneVerificationId, code);
+      const userCredential = await linkWithCredential(currentUser, credential);
 
       // Mark as verified
       setPhoneVerified(true);
       localStorage.setItem('coliana_phone_verified', 'true');
+      setPhoneVerificationId(null);
 
       const phoneNumber = userCredential?.user?.phoneNumber;
       if (phoneNumber) {
@@ -296,16 +306,20 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Error verifying code:', error);
-      const errorMessage = error.code === 'auth/invalid-verification-code'
-        ? 'Invalid verification code. Please try again.'
-        : error.message || 'Failed to verify code';
+      let errorMessage = 'Failed to verify code';
+      if (error.code === 'auth/invalid-verification-code') {
+        errorMessage = 'Invalid verification code. Please try again.';
+      } else if (error.code === 'auth/credential-already-in-use') {
+        errorMessage = 'This phone number is already linked to another account.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
       return { success: false, error: errorMessage };
     }
   };
 
   const resetPhoneVerification = () => {
     setPhoneVerificationId(null);
-    setConfirmationResultObj(null);
     setPhoneVerified(false);
   };
 
