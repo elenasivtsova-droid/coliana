@@ -169,35 +169,8 @@ function doPost(e) {
     var handlerResult;
     // Handle Retell web call creation
     switch (data.formType) {
-      case 'create-web-call': 
-        const apiKey = ScriptProperties.getProperty('RETELL_API_KEY');
-        const agentId = data.agent_id || 'agent_0c7794edc7b4aab987152a6985';
-
-        // Build payload with optional fields from data
-        const payload = {
-          agent_id: agentId,
-          ...(data.agent_version && { agent_version: data.agent_version }),
-          ...(data.agent_override && { agent_override: data.agent_override }),
-          ...(data.metadata && { metadata: data.metadata }),
-          ...(data.retell_llm_dynamic_variables && { retell_llm_dynamic_variables: data.retell_llm_dynamic_variables })
-        };
-
-        const url = 'https://api.retellai.com/v2/create-web-call';
-        const options = {
-          method: 'post',
-          headers: {
-            'Authorization': 'Bearer ' + apiKey,
-            'Content-Type': 'application/json'
-          },
-          payload: JSON.stringify(payload)
-        };
-        try {
-          const response = UrlFetchApp.fetch(url, options);
-          const result = JSON.parse(response.getContentText());
-          handlerResult = result;
-        } catch (error) {
-          handlerResult = { error: error.toString() };
-        }
+      case 'create-web-call':
+        handlerResult = handleCreateWebCall(data);
         break;
   case "provider":
         handlerResult = handleProviderSubmission(data);
