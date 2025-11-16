@@ -572,19 +572,19 @@ export default function ColianaApp() {
           <section className="mt-4 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 md:p-6 flex flex-col gap-5">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-base font-medium">Your ND-aware matches in California</h2>
+                <h2 className="text-base font-medium">Your  matches</h2>
                 <p className="text-xs text-slate-500">
                   Based on what you shared, here are providers who may be a good fit. A concierge is reviewing these matches as well.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+              {/* <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                 <span className="rounded-full bg-slate-100 px-2 py-0.5">Location: Los Angeles area</span>
                 <span className="rounded-full bg-slate-100 px-2 py-0.5">Format: In-person or online</span>
                 <span className="rounded-full bg-slate-100 px-2 py-0.5">Trusted by 320+ California families this year</span>
-              </div>
+              </div> */}
             </div>
 
-            <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3 md:p-4 flex flex-col gap-3">
+            {/* <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3 md:p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-800">Care Snapshot</span>
                 <button className="text-[11px] text-slate-500 underline-offset-4 hover:underline">
@@ -617,7 +617,7 @@ export default function ColianaApp() {
                 </div>
                 <span className="text-[11px] text-slate-500">Concierge-reviewed within 24h</span>
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-3">
               {matches.map((match, index) => {

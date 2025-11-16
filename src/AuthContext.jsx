@@ -184,8 +184,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Fetch user groups and profile
-    fetchUserGroups();
-    fetchUserProfile(userObject.email);
+    // fetchUserGroups();
+    // fetchUserProfile(userObject.email);
   };
 
   const handleSignOut = async () => {
