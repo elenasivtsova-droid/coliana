@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import FirebaseAuthUI from './components/FirebaseAuthUI';
 import logoSvg from './logo.svg?url';
 
 export default function Login() {
-  const { user, initialized, phoneVerified } = useAuth();
+  const { user, phoneVerified, handleFirebaseAuthSuccess } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in and phone verified
@@ -16,15 +17,6 @@ export default function Login() {
       // The PhoneVerification component will be shown
     }
   }, [user, phoneVerified, navigate]);
-
-  useEffect(() => {
-    if (initialized && !user) {
-      window.google.accounts.id.renderButton(
-        document.getElementById('googleSignInButton'),
-        { theme: 'outline', size: 'large', width: '100%' }
-      );
-    }
-  }, [initialized, user]);
 
   // If user is signed in but hasn't verified phone, show phone verification
   if (user && !phoneVerified) {
@@ -51,30 +43,19 @@ export default function Login() {
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-                Welcome to Coliana
-              </h1>
-              <p className="text-sm text-slate-600 mt-2">
-                Sign in with your Google account to get started
-              </p>
-            </div>
+          <FirebaseAuthUI
+            onSuccess={handleFirebaseAuthSuccess}
+            onError={(error) => console.error('Auth error:', error)}
+          />
 
-            {/* Google Sign-In Button */}
-            <div className="mb-6">
-              <div id="googleSignInButton" className="w-full flex justify-center"></div>
-            </div>
-
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 mt-6">
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <div className="text-xs text-blue-800">
-                  <p className="font-medium mb-1">Two-factor authentication required</p>
-                  <p>After signing in with Google, you'll need to verify your phone number for added security.</p>
-                </div>
+          <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 mt-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="text-xs text-blue-800">
+                <p className="font-medium mb-1">Phone verification required</p>
+                <p>After signing in with Google, you'll verify your phone number to complete setup.</p>
               </div>
             </div>
           </div>
