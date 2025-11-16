@@ -309,7 +309,7 @@ export const AuthProvider = ({ children }) => {
       let errorMessage = 'Failed to verify code';
       if (error.code === 'auth/invalid-verification-code') {
         errorMessage = 'Invalid verification code. Please try again.';
-      } else if (error.code === 'auth/credential-already-in-use') {
+      } else if (error.code === 'auth/credential-already-in-use' || error.code === 'auth/account-exists-with-different-credential') {
         errorMessage = 'This phone number is already linked to another account.';
       } else if (error.message) {
         errorMessage = error.message;
