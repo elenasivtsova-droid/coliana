@@ -18,7 +18,7 @@ const FirebaseAuthUI = ({ onSuccess, onError }) => {
         onSuccess(result.user);
       }
     } catch (err) {
-      const errorMessage = getErrorMessage(err.code);
+      const errorMessage = getErrorMessage(err);
       setError(errorMessage);
       if (onError) {
         onError(err);
@@ -28,7 +28,14 @@ const FirebaseAuthUI = ({ onSuccess, onError }) => {
     }
   };
 
-  const getErrorMessage = (code) => {
+  const getErrorMessage = (error) => {
+    const code = error?.code;
+    const tokenError = error?.customData?._tokenResponse?.errorMessage;
+
+    if (code === 'auth/user-disabled' || tokenError === 'USER_DISABLED') {
+      return 'This Google account has been disabled for Coliana. Please contact hello@coliana.ai if you need help.';
+    }
+
     switch (code) {
       case 'auth/popup-closed-by-user':
         return 'Sign-in popup was closed. Please try again.';
