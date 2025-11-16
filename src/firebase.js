@@ -22,25 +22,25 @@ import { getAuth } from 'firebase/auth';
 // };
 
 
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCdqBZa2MQPt3FwO-fTzB16wgPmo1Jem9w",
-//   authDomain: "coliana-b6009.firebaseapp.com",
-//   projectId: "coliana-b6009",
-//   storageBucket: "coliana-b6009.firebasestorage.app",
-//   messagingSenderId: "531172840544",
-//   appId: "1:531172840544:web:1300dcda176e8d0a20df05",
-//   measurementId: "G-P4TCJ21QT0"
-// };
-
 const firebaseConfig = {
-  apiKey: "AIzaSyDoXyyqUwBj8HPAgOj_6MdJfQO46cKPmcc",
-  authDomain: "coliana-ai.firebaseapp.com",
-  projectId: "coliana-ai",
-  storageBucket: "coliana-ai.firebasestorage.app",
-  messagingSenderId: "884139650102",
-  appId: "1:884139650102:web:83d9f48a715e2b2189fc97",
-  measurementId: "G-ZMPLFSBTCQ"
+  apiKey: "AIzaSyCdqBZa2MQPt3FwO-fTzB16wgPmo1Jem9w",
+  authDomain: "coliana-b6009.firebaseapp.com",
+  projectId: "coliana-b6009",
+  storageBucket: "coliana-b6009.firebasestorage.app",
+  messagingSenderId: "531172840544",
+  appId: "1:531172840544:web:1300dcda176e8d0a20df05",
+  measurementId: "G-P4TCJ21QT0"
 };
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDoXyyqUwBj8HPAgOj_6MdJfQO46cKPmcc",
+//   authDomain: "coliana-ai.firebaseapp.com",
+//   projectId: "coliana-ai",
+//   storageBucket: "coliana-ai.firebasestorage.app",
+//   messagingSenderId: "884139650102",
+//   appId: "1:884139650102:web:83d9f48a715e2b2189fc97",
+//   measurementId: "G-ZMPLFSBTCQ"
+// };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
