@@ -202,6 +202,9 @@ function doPost(e) {
   case "provider":
         handlerResult = handleProviderSubmission(data);
         break;
+  case "concierge":
+        handlerResult = handleConciergeSubmission(data);
+        break;
   case "save-user":
     handlerResult = handleSaveUserProfile(data);
     break;

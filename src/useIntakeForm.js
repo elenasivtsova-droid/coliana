@@ -16,6 +16,7 @@ export function useIntakeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // "success", "error", null
   const [matches, setMatches] = useState([]);
+  const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
   const updateAgeGroup = (group) => {
     setFormData((prev) => ({ ...prev, ageGroup: group }));
@@ -48,6 +49,8 @@ export function useIntakeForm() {
     // To update: npm run clasp:push && npm run clasp:deploy
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setLastSubmittedData(null);
+    const submissionPayload = { ...formData };
 
     try {
       const response = await fetch(SCRIPT_URL, {
@@ -56,23 +59,24 @@ export function useIntakeForm() {
         headers: {
           "Content-Type": "text/plain;charset=utf-8",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionPayload),
       });
 
       console.log("Response received:", response);
       console.log("Response status:", response.status);
-    let jsonResponse = null;
-    try {
+      let jsonResponse = null;
+      try {
         jsonResponse = await response.json();
         console.log("JSON response:", jsonResponse);
-    } catch (e) {
+      } catch (e) {
         console.warn("Could not parse JSON response:", e);
-    }
+      }
       // With no-cors, we can't read the response, so assume success if no error thrown
       if (jsonResponse && jsonResponse.result === 'success' && jsonResponse.matches) {
         setMatches(jsonResponse.matches);
       }
       setSubmitStatus("success");
+      setLastSubmittedData(submissionPayload);
       // Optionally reset form
       setFormData({
         formType: "client",
@@ -93,6 +97,48 @@ export function useIntakeForm() {
     }
   };
 
+  const submitConciergeRequest = async (match) => {
+    if (!match) {
+      throw new Error("Missing provider match data.");
+    }
+    if (!lastSubmittedData) {
+      throw new Error("Submit the intake form before requesting concierge support.");
+    }
+
+    const conciergePayload = {
+      formType: "concierge",
+      client: lastSubmittedData,
+      provider: match,
+    };
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        redirect: "follow",
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify(conciergePayload),
+      });
+
+      let jsonResponse = null;
+      try {
+        jsonResponse = await response.json();
+      } catch (e) {
+        console.warn("Could not parse concierge JSON response:", e);
+      }
+
+      if (!jsonResponse || jsonResponse.result !== "success") {
+        throw new Error((jsonResponse && jsonResponse.message) || "Unable to reach concierge right now.");
+      }
+
+      return jsonResponse;
+    } catch (error) {
+      console.error("Concierge submission error:", error);
+      throw error;
+    }
+  };
+
   return {
     formData,
     isSubmitting,
@@ -103,5 +149,6 @@ export function useIntakeForm() {
     toggleFormat,
     updateField,
     submitToGoogleSheets,
+    submitConciergeRequest,
   };
 }

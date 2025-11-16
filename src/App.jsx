@@ -20,6 +20,7 @@ export default function ColianaApp() {
     toggleFormat,
     updateField,
     submitToGoogleSheets,
+    submitConciergeRequest,
   } = useIntakeForm();
   const { user, handleSignOut, initialized, phoneVerified, phoneVerificationId, sendPhoneVerificationCode, verifyPhoneCode, resetPhoneVerification, saveUserProfile, verificationCooldownUntil } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
@@ -35,6 +36,7 @@ export default function ColianaApp() {
   const [calUrl, setCalUrl] = useState("");
   const [siteOpen, setSiteOpen] = useState(false);
   const [siteUrl, setSiteUrl] = useState("");
+  const [conciergeStatuses, setConciergeStatuses] = useState({});
 
   // Redirect to login if user is authenticated but hasn't verified phone (2FA requirement)
   useEffect(() => {
@@ -231,6 +233,32 @@ export default function ColianaApp() {
       }
     } catch (error) {
       console.error('Error starting voice call:', error);
+    }
+  };
+
+  const handleConciergeRequest = async (match, statusKey) => {
+    if (!match) {
+      return;
+    }
+    setConciergeStatuses((prev) => ({
+      ...prev,
+      [statusKey]: { status: "loading" },
+    }));
+
+    try {
+      await submitConciergeRequest(match);
+      setConciergeStatuses((prev) => ({
+        ...prev,
+        [statusKey]: { status: "success" },
+      }));
+    } catch (error) {
+      setConciergeStatuses((prev) => ({
+        ...prev,
+        [statusKey]: {
+          status: "error",
+          message: error?.message || "Unable to reach concierge right now.",
+        },
+      }));
     }
   };
 
@@ -592,67 +620,89 @@ export default function ColianaApp() {
             </div>
 
             <div className="space-y-3">
-              {matches.map((match, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl border border-slate-100 bg-slate-50/60 p-3 md:p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
-                >
-                  <div className="flex-1 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-medium text-slate-900">
-                        {match.providerName || match.practiceName}
-                      </span>
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
-                        Match
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500">
-                      {match.bio}
-                    </p>
-                    <p className="text-[11px] text-slate-500">
-                      {match.location} {match.matchedFormats && match.matchedFormats.length > 0 ? ` • ${match.matchedFormats.join(', ')}` : ''}
-                    </p>
-                    {match.matchedSupportTypes && match.matchedSupportTypes.length > 0 && (
+              {matches.map((match, index) => {
+                const conciergeKey = match.providerEmail || `${match.providerName || "match"}-${index}`;
+                const conciergeState = conciergeStatuses[conciergeKey] || {};
+                const conciergeStatus = conciergeState.status;
+                return (
+                  <div
+                    key={index}
+                    className="rounded-xl border border-slate-100 bg-slate-50/60 p-3 md:p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div className="flex-1 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium text-slate-900">
+                          {match.providerName || match.practiceName}
+                        </span>
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                          Match
+                        </span>
+                      </div>
                       <p className="text-[11px] text-slate-500">
-                        Specializes in: {match.matchedSupportTypes.join(', ')}
+                        {match.bio}
                       </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2 pt-2 md:pt-0 md:items-end">
-                    <div className="flex gap-2 w-full md:w-auto">
-                      {match.websiteLink ? (
-                        <button
-                          onClick={() => {
-                            setSiteUrl(match.websiteLink);
-                            setSiteOpen(true);
-                          }}
-                          className="inline-flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-full text-[11px] font-medium hover:bg-slate-100"
-                        >
-                          Website
-                        </button>
-                      ) : null}
-                      {match.bookingLink ? (
-                        <button
-                          onClick={() => {
-                            setCalUrl(match.bookingLink);
-                            setCalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700"
-                        >
-                          Book
-                        </button>
-                      ) : null}
-                 
-                      <button className="w-full md:w-auto rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
-                        Concierge
-                      </button>
+                      <p className="text-[11px] text-slate-500">
+                        {match.location} {match.matchedFormats && match.matchedFormats.length > 0 ? ` • ${match.matchedFormats.join(', ')}` : ''}
+                      </p>
+                      {match.matchedSupportTypes && match.matchedSupportTypes.length > 0 && (
+                        <p className="text-[11px] text-slate-500">
+                          Specializes in: {match.matchedSupportTypes.join(', ')}
+                        </p>
+                      )}
                     </div>
-                    {/* <button className="w-full md:w-auto text-[11px] text-slate-600 underline-offset-4 hover:underline">
-                      View profile
-                    </button> */}
+                    <div className="flex flex-col gap-2 pt-2 md:pt-0 md:items-end">
+                      <div className="flex gap-2 w-full md:w-auto">
+                        {match.websiteLink ? (
+                          <button
+                            onClick={() => {
+                              setSiteUrl(match.websiteLink);
+                              setSiteOpen(true);
+                            }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-full text-[11px] font-medium hover:bg-slate-100"
+                          >
+                            Website
+                          </button>
+                        ) : null}
+                        {match.bookingLink ? (
+                          <button
+                            onClick={() => {
+                              setCalUrl(match.bookingLink);
+                              setCalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700"
+                          >
+                            Book
+                          </button>
+                        ) : null}
+                        <button
+                          onClick={() => handleConciergeRequest(match, conciergeKey)}
+                          disabled={conciergeStatus === "loading" || conciergeStatus === "success"}
+                          className="w-full md:w-auto rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                        >
+                          {conciergeStatus === "loading"
+                            ? "Sending..."
+                            : conciergeStatus === "success"
+                            ? "Requested"
+                            : "Concierge"}
+                        </button>
+                      </div>
+                      {conciergeStatus === "success" && (
+                        <span className="text-[11px] text-emerald-600 md:text-right">
+                          Sent to concierge. We'll be in touch soon.
+                        </span>
+                      )}
+                      {conciergeStatus === "error" && (
+                        <span className="text-[11px] text-red-600 md:text-right">
+                          {conciergeState.message || "Couldn't send. Please try again."}
+                        </span>
+                      )}
+                      {/* <button className="w-full md:w-auto text-[11px] text-slate-600 underline-offset-4 hover:underline">
+                        View profile
+                      </button> */}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <p className="pt-1 text-[11px] text-slate-500">
