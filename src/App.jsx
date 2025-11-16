@@ -295,7 +295,7 @@ export default function ColianaApp() {
 
       <main className="mx-auto max-w-5xl px-4 pb-20 pt-8 flex flex-col gap-8">
         <section className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start">
-          <div className="space-y-6 order-2 md:order-1">
+          <div className="space-y-6 order-1 md:order-2">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
@@ -312,7 +312,7 @@ export default function ColianaApp() {
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button onClick={startVoiceCall} disabled={isCallActive} className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50">
-                  {isCallActive ? "Call in progress..." : "Start matching"}
+                  {isCallActive ? "Call in progress..." : "Call Concierge"}
                 </button>
                 {isCallActive && (
                   <button onClick={() => retellWebClient?.stopCall()} className="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100">
@@ -558,7 +558,7 @@ export default function ColianaApp() {
                 disabled={isSubmitting || !formData.email || !formData.name || !formData.ageGroup || formData.supportTypes.length === 0 || phoneError}
                 className="rounded-full bg-emerald-600 px-5 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Searching..." : "Find Matching Providers"}
               </button>
             </div>
           </div>
