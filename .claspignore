@@ -1,0 +1,5 @@
+# Since rootDir is ./appsscript, these patterns apply within that directory
+# Don't ignore .gs and .js files - they are your Apps Script code
+
+# Keep .claspignore minimal when using rootDir
+# No need to ignore files outside the rootDir

@@ -1,0 +1,43 @@
+{
+  "name": "coliana",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "homepage": "https://elenasivtsova-droid.github.io/coliana",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "npm run build && gh-pages -d dist",
+    "clasp:push": "clasp push",
+    "clasp:pull": "clasp pull",
+    "clasp:deploy": "clasp deploy",
+    "clasp:open": "clasp open",
+    "clasp:update": "node scripts/deploy-and-update.js",
+    "clasp:delete": "clasp delete",
+    "clasp:archive": "clasp archive",
+    "clasp:status": "clasp status",
+    "clasp:versions": "clasp versions",
+    "clasp:undeploy-all": "node scripts/undeploy-all.js"
+  },
+  "dependencies": {
+    "firebase": "^12.6.0",
+    "jwt-decode": "^4.0.0",
+    "libphonenumber-js": "^1.12.26",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.9.5",
+    "retell-client-js-sdk": "^2.0.7",
+    "retell-sdk": "^4.57.0"
+  },
+  "devDependencies": {
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "@google/clasp": "^2.4.2",
+    "astro": "^5.15.6",
+    "autoprefixer": "^10.4.16",
+    "gh-pages": "^6.1.1",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6"
+  }
+}

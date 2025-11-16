@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <title>Coliana - Development Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #10b981;
+        margin-bottom: 20px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #374151;
+      }
+      input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      button {
+        background: #10b981;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #059669;
+      }
+      button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      .status {
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 6px;
+        display: none;
+      }
+      .status.success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #10b981;
+        display: block;
+      }
+      .status.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+        display: block;
+      }
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .checkbox-item input {
+        width: auto;
+      }
+      .checkbox-item label {
+        margin-bottom: 0;
+        font-weight: normal;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Development Test Mode</h1>
+      <p style="color: #6b7280; margin-bottom: 30px;">
+        Test your form submissions directly without deploying. Changes to Code.js are reflected immediately.
+      </p>
+
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="name" placeholder="Your name" />
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="your@email.com" />
+      </div>
+
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="phone" placeholder="555-0123" />
+      </div>
+
+      <div class="form-group">
+        <label>Age Group</label>
+        <select id="ageGroup">
+          <option value="">Select...</option>
+          <option value="child">A child or teen</option>
+          <option value="adult">An adult (18+)</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Support Types (check all that apply)</label>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="st1" value="Speech and language">
+            <label for="st1">Speech and language</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="st2" value="Occupational therapy">
+            <label for="st2">Occupational therapy</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="st3" value="Behavioral / coaching">
+            <label for="st3">Behavioral / coaching</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="st4" value="Mental health / therapy">
+            <label for="st4">Mental health / therapy</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="st5" value="Neurodivergent coaching">
+            <label for="st5">ND coaching</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="st6" value="Not sure yet / I need guidance">
+            <label for="st6">Not sure yet</label>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="testSubmit()" id="submitBtn">Submit Test Form</button>
+      
+      <div id="status" class="status"></div>
+    </div>
+
+    <script>
+      function testSubmit() {
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+        status.className = 'status';
+        status.style.display = 'none';
+
+        // Collect support types
+        const supportTypes = [];
+        document.querySelectorAll('.checkbox-item input:checked').forEach(cb => {
+          supportTypes.push(cb.value);
+        });
+
+        const formData = {
+          formType: 'client',
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          ageGroup: document.getElementById('ageGroup').value,
+          supportTypes: supportTypes,
+          location: 'Los Angeles, CA',
+          format: ['In-person', 'Virtual']
+        };
+
+        console.log('Submitting:', formData);
+
+        // Call the Apps Script function directly
+        google.script.run
+          .withSuccessHandler(function(result) {
+            console.log('Success:', result);
+            status.className = 'status success';
+            status.textContent = '✓ ' + result.message;
+            btn.disabled = false;
+            btn.textContent = 'Submit Test Form';
+          })
+          .withFailureHandler(function(error) {
+            console.error('Error:', error);
+            status.className = 'status error';
+            status.textContent = '⚠ Error: ' + error.message;
+            btn.disabled = false;
+            btn.textContent = 'Submit Test Form';
+          })
+          .submitClientForm(formData);
+      }
+
+      // Test connection on load
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('Connection test:', result);
+        })
+        .withFailureHandler(function(error) {
+          console.error('Connection test failed:', error);
+        })
+        .testConnection();
+    </script>
+  </body>
+</html>
